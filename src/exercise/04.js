@@ -2,22 +2,7 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import * as React from 'react';
-
-function useLocalStorageState(
-  key,
-  defaultValue,
-  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
-) {
-  const [state, setState] = React.useState(() => {
-    return deserialize(window.localStorage.getItem(key)) ?? defaultValue;
-  });
-
-  React.useEffect(() => {
-    window.localStorage.setItem(key, serialize(state));
-  });
-
-  return [state, setState];
-}
+import {useLocalStorageState} from '../utils.js';
 
 function Board() {
   const [squares, setSquares] = useLocalStorageState(
