@@ -1,16 +1,20 @@
 // useEffect: persistent state
 // http://localhost:3000/isolated/exercise/02.js
 
-import * as React from 'react'
+import * as React from 'react';
 
-function useLocalStorageState(key, defaultValue, { serialize = JSON.stringify, deserialize = JSON.parse} = {}) {
+function useLocalStorageState(
+  key,
+  defaultValue,
+  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
+) {
   const [value, setValue] = React.useState(() => {
-    return deserialize(window.localStorage.getItem(key)) ?? defaultValue
+    return deserialize(window.localStorage.getItem(key)) ?? defaultValue;
   });
 
   React.useEffect(() => {
     window.localStorage.setItem(key, serialize(value));
-  }, [key, value]);
+  }, [key, serialize, value]);
 
   return [value, setValue];
 }
@@ -19,7 +23,7 @@ function Greeting({initialName = ''}) {
   const [name, setName] = useLocalStorageState('name', initialName);
 
   function handleChange(event) {
-    setName(event.target.value)
+    setName(event.target.value);
   }
 
   return (
@@ -30,11 +34,11 @@ function Greeting({initialName = ''}) {
       </form>
       {name ? <strong>Hello {name}</strong> : 'Please type your name'}
     </div>
-  )
+  );
 }
 
 function App() {
-  return <Greeting />
+  return <Greeting />;
 }
 
-export default App
+export default App;
