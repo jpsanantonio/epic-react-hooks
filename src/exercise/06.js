@@ -2,16 +2,28 @@
 // http://localhost:3000/isolated/exercise/06.js
 
 import * as React from 'react';
-// 🐨 you'll want the following additional things from '../pokemon':
-// fetchPokemon: the function we call to get the pokemon info
-// PokemonInfoFallback: the thing we show while we're loading the pokemon info
-// PokemonDataView: the stuff we use to display the pokemon info
 import {
   PokemonForm,
   fetchPokemon,
   PokemonInfoFallback,
   PokemonDataView,
 } from '../pokemon';
+class ErrorBoundary extends React.Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    const { error } = this.state;
+
+    if (error) {
+      return <this.props.FallbackComponent error={error} />;
+    }
+    return this.props.children;
+  }
+}
 
 function PokemonInfo({ pokemonName }) {
   const [state, setState] = React.useState({
@@ -36,17 +48,21 @@ function PokemonInfo({ pokemonName }) {
   if (state.status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />;
   } else if (state.status === 'rejected') {
-    return (
-      <div role="alert">
-        There was an error:{' '}
-        <pre style={{ whiteSpace: 'normal' }}>{state.error.message}</pre>
-      </div>
-    );
+    throw state.error;
   } else if (state.status === 'resolved') {
     return <PokemonDataView pokemon={state.pokemon} />;
   } else {
     return 'Submit a pokemon';
   }
+}
+
+function ErrorFallback({ error }) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{ whiteSpace: 'normal' }}>{error.message}</pre>
+    </div>
+  );
 }
 
 function App() {
@@ -61,7 +77,9 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
       </div>
     </div>
   );
